@@ -1,0 +1,11 @@
+{
+  "name": "the-slashinator",
+  "version": "1.0.0",
+  "description": "A cloud function to eliminate excessive costs in GCP",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jens Skott <jens.skott@thoughtgears.co.uk>",
+  "license": "MIT"
+}
