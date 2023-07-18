@@ -40,6 +40,10 @@ gcloud iam service-accounts create cf-slashinator --project $PROJECT_ID
 gcloud beta billing accounts add-iam-policy-binding $BILLING_ACCOUNT \
                               --member=serviceAccount:cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
                               --role=roles/billing.admin
+
+gcloud organizations add-iam-policy-binding $ORGANIZATION_ID \
+                              --member=serviceAccount:cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
+                              --role=roles/owner
 ```
 
 Then deploy the Slashinator to Cloud Functions.
