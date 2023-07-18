@@ -1,0 +1,20 @@
+{
+  "message": {
+    "attributes": {
+      "billingAccountId": "01D4EE-079462-DFD6EC",
+      "budgetId": "de72f49d-779b-4945-a127-4d6ce8def0bb",
+      "schemaVersion": "1.0"
+    },
+    "data": {
+      "budgetDisplayName": "<projectId>-alert",
+      "costAmount": 10.1,
+      "costIntervalStart": "2021-02-01T08:00:00Z",
+      "budgetAmount": 10.0,
+      "budgetAmountType": "SPECIFIED_AMOUNT",
+      "alertThresholdExceeded": 1.0,
+      "currencyCode": "GBP"
+    },
+    "messageId": "136969346945"
+  },
+  "subscription": "projects/myproject/subscriptions/budgets-alerts-subscription"
+}

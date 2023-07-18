@@ -2,10 +2,27 @@
   "name": "the-slashinator",
   "version": "1.0.0",
   "description": "A cloud function to eliminate excessive costs in GCP",
-  "main": "app.js",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "lint": "eslint . --ext .ts",
+    "start": "functions-framework --target=slashinator --signature-type=event",
+    "prestart": "npm run build",
+    "gcp-build": "npm run build"
   },
   "author": "Jens Skott <jens.skott@thoughtgears.co.uk>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/billing": "^3.4.0",
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@google-cloud/pubsub": "^3.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
+    "eslint-config-google": "^0.14.0",
+    "typescript": "^5.1.6"
+  }
 }
