@@ -23,7 +23,7 @@ interface IBudgetAlert {
   currencyCode: string
 }
 
-const _isBillingEnabled = async (projectName: string): Promise<boolean | null | undefined> => {
+const checkBillingStatus = async (projectName: string): Promise<boolean | null | undefined> => {
   try {
     const [billingInfo] = await client.getProjectBillingInfo({
       name: projectName,
@@ -31,18 +31,23 @@ const _isBillingEnabled = async (projectName: string): Promise<boolean | null | 
     return billingInfo?.billingEnabled;
   } catch (err) {
     console.error(`Error getting billing info for project ${projectName} : ${err}`);
-    return false;
+    throw err;
   }
 };
 
-const _disableBillingForProject = async (projectName: string): Promise<void> => {
-  await client.updateProjectBillingInfo({
-    name: projectName,
-    projectBillingInfo: {
-      billingAccountName: null, // Disable billing
-    },
-  });
-  console.log(`Billing disabled for project ${projectName}`);
+const disableBilling = async (projectName: string): Promise<void> => {
+  try {
+    await client.updateProjectBillingInfo({
+      name: projectName,
+      projectBillingInfo: {
+        billingAccountName: null, // Disable billing
+      },
+    });
+    console.log(`Billing disabled for project ${projectName}`);
+  } catch (err) {
+    console.error(`Error disabling billing for project ${projectName} : ${err}`);
+    throw err;
+  }
 };
 
 ff.cloudEvent<IPubsubMessage>('slashinator', async (event) => {
@@ -56,12 +61,12 @@ ff.cloudEvent<IPubsubMessage>('slashinator', async (event) => {
   const projectName = `projects/${projectId}`;
 
   if (data.costAmount <= data.budgetAmount) {
-    return `No action necessary. (Current cost: ${data.costAmount})`;
+    return;
   }
 
-  const billingEnabled = await _isBillingEnabled(projectName);
+  const billingEnabled = await checkBillingStatus(projectName);
 
   if (billingEnabled) {
-    await _disableBillingForProject(projectName);
+    await disableBilling(projectName);
   }
 });
