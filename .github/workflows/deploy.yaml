@@ -1,0 +1,38 @@
+name: Deploy Cloud Function
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.WIF_POOL_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Deploy The Slashinator Cloud Function
+        id: deploy
+        uses: google-github-actions/deploy-cloud-functions@v2
+        with:
+          name: the-slashinator
+          runtime: nodejs20
+          entry_point: slashinator
+          region: europe-west1
+          labels: env=production,team=thoughtgears,app=the-slashinator,owner=thoughtgears
+          project_id: ${{ secrets.PROJECT_ID }}
+          description: Project budget account remover
+          service_account_email: ${{ secrets.APP_SERVICE_ACCOUNT }}
+          event_trigger_type: topic
+          event_trigger_resource: ${{ secrets.PUBSUB_TOPIC }}
+
