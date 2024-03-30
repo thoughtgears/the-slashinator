@@ -32,7 +32,7 @@ jobs:
             --runtime=nodejs20 \
             --entry-point=slashinator \
             --region=europe-west1 \
-            --labels=env=production,team=thoughtgears,app=the-slashinator,owner=thoughtgears \
+            --update-labels=env=production,team=thoughtgears,app=the-slashinator,owner=thoughtgears \
             --project=${{ secrets.PROJECT_ID }} \
             --service-account=${{ secrets.APP_SERVICE_ACCOUNT }} \
             --trigger-topic=${{ secrets.PUBSUB_TOPIC }} \
