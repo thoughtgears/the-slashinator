@@ -33,6 +33,6 @@ jobs:
           project_id: ${{ secrets.PROJECT_ID }}
           description: Project budget account remover
           service_account_email: ${{ secrets.APP_SERVICE_ACCOUNT }}
-          event_trigger_type: topic
-          event_trigger_resource: ${{ secrets.PUBSUB_TOPIC }}
+          event_trigger_type: providers/cloud.pubsub/eventTypes/topic.publish.
+          event_trigger_resource: projects/${{ secrets.PROJECT_ID }}/topics/${{ secrets.PUBSUB_TOPIC }}
 
