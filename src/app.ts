@@ -60,13 +60,20 @@ ff.cloudEvent<IPubsubMessage>('slashinator', async (event) => {
   const projectId = data.budgetDisplayName.replace('-alert', '');
   const projectName = `projects/${projectId}`;
 
-  if (data.costAmount <= data.budgetAmount) {
-    return;
-  }
+  try {
+    if (data.costAmount <= data.budgetAmount) {
+      return;
+    }
 
-  const billingEnabled = await checkBillingStatus(projectName);
+    const billingEnabled = await checkBillingStatus(projectName);
 
-  if (billingEnabled) {
+    if (!billingEnabled) {
+      console.log('Billing already disabled for project:', projectName);
+      return;
+    }
+
     await disableBilling(projectName);
+  } catch (err) {
+    console.error(`Error processing message: ${err}`);
   }
 });
