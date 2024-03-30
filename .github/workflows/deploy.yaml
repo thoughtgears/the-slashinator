@@ -21,18 +21,19 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_POOL_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
       - name: Deploy The Slashinator Cloud Function
         id: deploy
-        uses: google-github-actions/deploy-cloud-functions@v2
-        with:
-          name: the-slashinator
-          runtime: nodejs20
-          entry_point: slashinator
-          region: europe-west1
-          labels: env=production,team=thoughtgears,app=the-slashinator,owner=thoughtgears
-          project_id: ${{ secrets.PROJECT_ID }}
-          description: Project budget account remover
-          service_account_email: ${{ secrets.APP_SERVICE_ACCOUNT }}
-          event_trigger_type: providers/cloud.pubsub/eventTypes/topic.publish.
-          event_trigger_resource: projects/${{ secrets.PROJECT_ID }}/topics/${{ secrets.PUBSUB_TOPIC }}
-
+        shell: bash
+        run: |
+          gcloud functions deploy the-slashinator \
+            --runtime=nodejs20 \
+            --entry-point=slashinator \
+            --region=europe-west1 \
+            --labels=env=production,team=thoughtgears,app=the-slashinator,owner=thoughtgears \
+            --project=${{ secrets.PROJECT_ID }} \
+            --service-account=${{ secrets.APP_SERVICE_ACCOUNT }} \
+            --trigger-topic=${{ secrets.PUBSUB_TOPIC }} \
+            --quiet
