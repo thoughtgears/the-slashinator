@@ -30,6 +30,7 @@ jobs:
         run: |
           gcloud functions deploy the-slashinator \
             --runtime=nodejs20 \
+            --no-gen2 \
             --entry-point=slashinator \
             --region=europe-west1 \
             --update-labels=env=production,team=thoughtgears,app=the-slashinator,owner=thoughtgears \
