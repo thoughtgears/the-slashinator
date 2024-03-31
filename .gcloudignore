@@ -2,3 +2,9 @@
 .gcloudignore
 LICENCE
 README.md
+.git
+.github
+example
+.eslintignore
+.eslintrc.json
+gha-creds*
