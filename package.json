@@ -13,7 +13,7 @@
   "author": "Jens Skott <jens.skott@thoughtgears.co.uk>",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/billing": "^4.0.0",
+    "@google-cloud/billing": "^4.4.0",
     "@google-cloud/functions-framework": "^3.3.0",
     "@google-cloud/pubsub": "^4.0.0"
   },
