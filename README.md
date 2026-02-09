@@ -60,11 +60,11 @@ Then deploy the Slashinator to Cloud Functions (Gen2).
 
 ```shell
 # Option 1: Export PROJECT_ID (persists in current shell session)
-export PROJECT_ID=cloud-operations-26219
+export PROJECT_ID=my-gcp-project
 npm run deploy
 
 # Option 2: Pass PROJECT_ID inline (one-time use)
-PROJECT_ID=cloud-operations-26219 npm run deploy
+PROJECT_ID=my-gcp-project npm run deploy
 ```
 
 **What happens during deployment:**
