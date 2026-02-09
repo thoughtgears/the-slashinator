@@ -1,5 +1,5 @@
 import { CloudBillingClient } from '@google-cloud/billing';
-import pRetry from 'p-retry';
+import pRetry, { AbortError } from 'p-retry';
 
 const client = new CloudBillingClient();
 
@@ -17,7 +17,7 @@ export const checkBillingStatus = async (
         // Don't retry permanent errors
         if ([400, 403, 404].includes(err.code)) {
           console.error(`Permanent error checking billing: ${err.message}`);
-          throw new pRetry.AbortError(err);
+          throw new AbortError(err);
         }
         console.warn(`Transient error, will retry: ${err.message}`);
         throw err;
@@ -51,7 +51,7 @@ export const disableBilling = async (projectName: string): Promise<void> => {
       } catch (err: any) {
         if ([400, 403, 404].includes(err.code)) {
           console.error(`Permanent error disabling billing: ${err.message}`);
-          throw new pRetry.AbortError(err);
+          throw new AbortError(err);
         }
         console.warn(`Transient error, will retry: ${err.message}`);
         throw err;

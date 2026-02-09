@@ -5,7 +5,7 @@ export const PubSubMessageSchema = z.object({
     data: z.string().min(1, 'Message data cannot be empty'),
     messageId: z.string(),
     publishTime: z.string(),
-    attributes: z.record(z.string()).optional(),
+    attributes: z.record(z.string(), z.string()).optional(),
   }),
   subscription: z.string(),
   deliveryAttempt: z.number().optional(),
@@ -18,7 +18,7 @@ export const BudgetAlertSchema = z.object({
   budgetAmount: z.number().positive('Budget amount must be positive'),
   budgetAmountType: z.string(),
   alertThresholdExceeded: z.number(),
-  currencyCode: z.string().length(3, 'Currency code must be 3 characters'),
+  currencyCode: z.string().length(3),
 });
 
 export type PubSubMessage = z.infer<typeof PubSubMessageSchema>;

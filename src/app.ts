@@ -1,4 +1,5 @@
 import * as ff from '@google-cloud/functions-framework';
+import type {CloudEvent} from '@google-cloud/functions-framework';
 import {
   parseCloudEvent,
   extractProjectId,
@@ -9,7 +10,7 @@ import {
 } from './services/billing.service';
 import type {PubSubMessage} from './schemas/budgetAlert.schema';
 
-ff.cloudEvent<PubSubMessage>('slashinator', async (event) => {
+ff.cloudEvent<PubSubMessage>('slashinator', async (event: CloudEvent<PubSubMessage>) => {
   const startTime = Date.now();
   const messageId = event.data?.message?.messageId || 'unknown';
 

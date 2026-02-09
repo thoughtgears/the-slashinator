@@ -1,22 +1,39 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest';
-import {
-  checkBillingStatus,
-  disableBilling,
-} from '../../../src/services/billing.service';
+
+// Create mock functions that will be shared
+const mockGetProjectBillingInfo = vi.fn();
+const mockUpdateProjectBillingInfo = vi.fn();
 
 // Mock the billing client
-vi.mock('@google-cloud/billing', () => ({
-  CloudBillingClient: vi.fn().mockImplementation(() => ({
-    getProjectBillingInfo: vi.fn(),
-    updateProjectBillingInfo: vi.fn(),
-  })),
-}));
+vi.mock('@google-cloud/billing', () => {
+  const mockGetInfo = vi.fn();
+  const mockUpdateInfo = vi.fn();
+  return {
+    CloudBillingClient: vi.fn().mockImplementation(() => ({
+      getProjectBillingInfo: mockGetInfo,
+      updateProjectBillingInfo: mockUpdateInfo,
+    })),
+    __mockGetProjectBillingInfo: mockGetInfo,
+    __mockUpdateProjectBillingInfo: mockUpdateInfo,
+  };
+});
 
 // Mock p-retry to execute immediately (no delays in tests)
 vi.mock('p-retry', () => ({
   default: vi.fn((fn) => fn()),
   AbortError: class AbortError extends Error {},
 }));
+
+// Import after mocks are set up
+import {
+  checkBillingStatus,
+  disableBilling,
+} from '../../../src/services/billing.service';
+
+// Get the actual mock functions from the mocked module
+const billing = await import('@google-cloud/billing');
+const mockGet = (billing as any).__mockGetProjectBillingInfo;
+const mockUpdate = (billing as any).__mockUpdateProjectBillingInfo;
 
 describe('BillingService', () => {
   beforeEach(() => {
@@ -25,22 +42,17 @@ describe('BillingService', () => {
 
   describe('checkBillingStatus', () => {
     it('should return true when billing is enabled', async () => {
-      const {CloudBillingClient} = await import('@google-cloud/billing');
-      const mockClient = new CloudBillingClient();
-      mockClient.getProjectBillingInfo = vi
-        .fn()
-        .mockResolvedValue([{billingEnabled: true}]);
+      mockGet.mockResolvedValue([{billingEnabled: true}]);
 
       const result = await checkBillingStatus('projects/test');
       expect(result).toBe(true);
+      expect(mockGet).toHaveBeenCalledWith({
+        name: 'projects/test',
+      });
     });
 
     it('should return false when billing is disabled', async () => {
-      const {CloudBillingClient} = await import('@google-cloud/billing');
-      const mockClient = new CloudBillingClient();
-      mockClient.getProjectBillingInfo = vi
-        .fn()
-        .mockResolvedValue([{billingEnabled: false}]);
+      mockGet.mockResolvedValue([{billingEnabled: false}]);
 
       const result = await checkBillingStatus('projects/test');
       expect(result).toBe(false);
@@ -49,13 +61,11 @@ describe('BillingService', () => {
 
   describe('disableBilling', () => {
     it('should call updateProjectBillingInfo with empty billingAccountName', async () => {
-      const {CloudBillingClient} = await import('@google-cloud/billing');
-      const mockClient = new CloudBillingClient();
-      mockClient.updateProjectBillingInfo = vi.fn().mockResolvedValue([{}]);
+      mockUpdate.mockResolvedValue([{}]);
 
       await disableBilling('projects/test');
 
-      expect(mockClient.updateProjectBillingInfo).toHaveBeenCalledWith({
+      expect(mockUpdate).toHaveBeenCalledWith({
         name: 'projects/test',
         projectBillingInfo: {
           billingAccountName: '',
