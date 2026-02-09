@@ -54,12 +54,20 @@ gcloud organizations add-iam-policy-binding $ORGANIZATION_ID \
 
 Then deploy the Slashinator to Cloud Functions (Gen2).
 
+### Deployment
+
+**Required**: Set the `PROJECT_ID` environment variable to your GCP project ID.
+
 ```shell
-# Deploy using npm script (runs lint, tests, build, then deploys)
+# Option 1: Export PROJECT_ID (persists in current shell session)
+export PROJECT_ID=cloud-operations-26219
 npm run deploy
+
+# Option 2: Pass PROJECT_ID inline (one-time use)
+PROJECT_ID=cloud-operations-26219 npm run deploy
 ```
 
-This will:
+**What happens during deployment:**
 1. ✅ Run ESLint to check code quality
 2. ✅ Run all tests (must pass)
 3. ✅ Build TypeScript
@@ -85,6 +93,14 @@ gcloud functions deploy the-slashinator \
   --project=$PROJECT_ID \
   --quiet
 ```
+
+### Pre-commit Hooks
+
+This project uses Husky to run checks before committing:
+- **ESLint**: Auto-fixes code style issues
+- **Tests**: Runs tests related to changed files
+
+This ensures code quality and prevents broken code from being committed.
 
 ## Development
 
