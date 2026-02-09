@@ -2,9 +2,15 @@
 
 ## What is it?
 
-The Slashinator is a NodeJS application to listen to budget alerts in GCP and remove the project from the billing
-account to ensure that the project is not charged for any further usage. This is useful for personal projects that
-should not exceed a certain budget.
+The Slashinator is a Cloud Functions Gen2 application (Node.js 22) that listens to budget alerts in GCP and removes the project from the billing account to ensure that the project is not charged for any further usage. This is useful for personal projects that should not exceed a certain budget.
+
+**Features:**
+- ✅ Gen2 Cloud Functions with CloudEvent format
+- ✅ Node.js 22 LTS runtime
+- ✅ Automatic retry logic with exponential backoff (3 attempts)
+- ✅ Input validation with Zod schemas
+- ✅ Structured logging with message ID tracking
+- ✅ Comprehensive test suite with Vitest
 
 ## Usage
 
@@ -46,20 +52,55 @@ gcloud organizations add-iam-policy-binding $ORGANIZATION_ID \
                               --role=roles/owner
 ```
 
-Then deploy the Slashinator to Cloud Functions.
+Then deploy the Slashinator to Cloud Functions (Gen2).
 
 ```shell
-gcloud functions deploy billing-alerts \
-                              --entry-point=slashinator \
-                              --runtime=nodejs18 \
-                              --trigger-topic=budget-alerts \
-                              --service-account=cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
-                              --region=europe-west2 \
-                              --project=$PROJECT_ID \
-                              --quiet
+gcloud functions deploy the-slashinator \
+  --gen2 \
+  --runtime=nodejs22 \
+  --entry-point=slashinator \
+  --region=europe-west1 \
+  --source=. \
+  --trigger-topic=budget-alerts \
+  --service-account=cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
+  --timeout=60s \
+  --memory=256MB \
+  --max-instances=10 \
+  --retry \
+  --project=$PROJECT_ID \
+  --quiet
 ```
 
-## Testing the function
+**Note:** This deploys a Gen2 function with:
+- Automatic retries enabled (`--retry`)
+- 60 second timeout and 256MB memory
+- Maximum 10 concurrent instances for cost protection
+
+## Development
+
+### Local Development
+
+```shell
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests with UI
+npm run test:ui
+
+# Build TypeScript
+npm run build
+
+# Run locally (requires GCP credentials)
+npm start
+```
+
+### Testing the function
 
 After deployment of the function, post a message to the topic to test the function.
 
@@ -87,9 +128,11 @@ gcloud pubsub topics publish budget-alerts --message='{
 }'
 ```
 
-## Billing event notification format
+## Billing event notification format (Gen2 CloudEvent)
 
 [Reference](https://cloud.google.com/billing/docs/how-to/budgets-programmatic-notifications#notification_format)
+
+Gen2 Cloud Functions receive events in CloudEvent format:
 
 ```json
 {
@@ -99,18 +142,35 @@ gcloud pubsub topics publish budget-alerts --message='{
       "budgetId": "de72f49d-779b-4945-a127-4d6ce8def0bb",
       "schemaVersion": "1.0"
     },
-    "data": {
-      "budgetDisplayName": "My Personal Budget",
-      "costAmount": 140.321,
-      "costIntervalStart": "2021-02-01T08:00:00Z",
-      "budgetAmount": 152.557,
-      "budgetAmountType": "SPECIFIED_AMOUNT",
-      "alertThresholdExceeded": 0.9,
-      "forecastThresholdExceeded": 0.2,
-      "currencyCode": "USD"
-    },
-    "messageId": "136969346945"
+    "data": "<base64-encoded-budget-alert-data>",
+    "messageId": "136969346945",
+    "publishTime": "2024-01-01T12:00:00Z"
   },
-  "subscription": "projects/myproject/subscriptions/budgets-alerts-subscription"
+  "subscription": "projects/myproject/subscriptions/budgets-alerts-subscription",
+  "deliveryAttempt": 1
 }
 ```
+
+**Key differences from Gen1:**
+- `data` field is base64-encoded (must be decoded before parsing)
+- `publishTime` field is required in Gen2
+- `deliveryAttempt` field tracks retry attempts (Gen2 only)
+
+## Monitoring
+
+View function logs:
+```shell
+gcloud functions logs read the-slashinator --gen2 --region=europe-west1 --project=$PROJECT_ID --limit=50
+```
+
+Function details:
+```shell
+gcloud functions describe the-slashinator --gen2 --region=europe-west1 --project=$PROJECT_ID
+```
+
+**Logs include:**
+- `[messageId]` prefix for tracing individual events
+- Budget threshold checks
+- Billing status checks
+- Retry attempts (if transient failures occur)
+- Performance timing

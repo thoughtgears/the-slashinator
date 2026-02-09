@@ -5,16 +5,10 @@
       "budgetId": "de72f49d-779b-4945-a127-4d6ce8def0bb",
       "schemaVersion": "1.0"
     },
-    "data": {
-      "budgetDisplayName": "<projectId>-alert",
-      "costAmount": 10.1,
-      "costIntervalStart": "2021-02-01T08:00:00Z",
-      "budgetAmount": 10.0,
-      "budgetAmountType": "SPECIFIED_AMOUNT",
-      "alertThresholdExceeded": 1.0,
-      "currencyCode": "GBP"
-    },
-    "messageId": "136969346945"
+    "data": "eyJidWRnZXREaXNwbGF5TmFtZSI6Ijxwcm9qZWN0SWQ+LWFsZXJ0IiwiY29zdEFtb3VudCI6MTAuMSwiY29zdEludGVydmFsU3RhcnQiOiIyMDIxLTAyLTAxVDA4OjAwOjAwWiIsImJ1ZGdldEFtb3VudCI6MTAuMCwiYnVkZ2V0QW1vdW50VHlwZSI6IlNQRUNJRklFRF9BTU9VTlQiLCJhbGVydFRocmVzaG9sZEV4Y2VlZGVkIjoxLjAsImN1cnJlbmN5Q29kZSI6IkdCUCJ9",
+    "messageId": "136969346945",
+    "publishTime": "2024-01-01T12:00:00Z"
   },
-  "subscription": "projects/myproject/subscriptions/budgets-alerts-subscription"
+  "subscription": "projects/myproject/subscriptions/budgets-alerts-subscription",
+  "deliveryAttempt": 1
 }

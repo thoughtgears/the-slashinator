@@ -5,24 +5,32 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --ext .ts",
-    "start": "functions-framework --target=slashinator --signature-type=event",
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "start": "functions-framework --target=slashinator --signature-type=cloudevent",
     "prestart": "npm run build",
     "gcp-build": "npm run build"
   },
   "author": "Jens Skott <jens.skott@thoughtgears.co.uk>",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/billing": "^4.0.0",
-    "@google-cloud/functions-framework": "^3.3.0",
-    "@google-cloud/pubsub": "^4.0.0"
+    "@google-cloud/billing": "^5.1.0",
+    "@google-cloud/functions-framework": "^4.0.0",
+    "zod": "^4.3.6",
+    "p-retry": "^7.1.1"
   },
   "devDependencies": {
-    "@types/node": "^14.11.2",
-    "@typescript-eslint/eslint-plugin": "^6.1.0",
-    "@typescript-eslint/parser": "^6.1.0",
-    "eslint": "^8.45.0",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^10.0.0",
     "eslint-config-google": "^0.14.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0",
+    "@vitest/ui": "^3.0.0",
+    "c8": "^10.1.2"
   }
 }

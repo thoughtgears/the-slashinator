@@ -1,0 +1,10 @@
+{
+  "comment": "This is the decoded version of the budget alert for reference. In the actual event (billing-alert-event.json), the data field is base64-encoded.",
+  "budgetDisplayName": "<projectId>-alert",
+  "costAmount": 10.1,
+  "costIntervalStart": "2021-02-01T08:00:00Z",
+  "budgetAmount": 10.0,
+  "budgetAmountType": "SPECIFIED_AMOUNT",
+  "alertThresholdExceeded": 1.0,
+  "currencyCode": "GBP"
+}

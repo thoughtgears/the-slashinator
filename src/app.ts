@@ -1,79 +1,62 @@
 import * as ff from '@google-cloud/functions-framework';
-import {CloudBillingClient} from '@google-cloud/billing';
+import {
+  parseCloudEvent,
+  extractProjectId,
+} from './services/eventParser.service';
+import {
+  checkBillingStatus,
+  disableBilling,
+} from './services/billing.service';
+import type {PubSubMessage} from './schemas/budgetAlert.schema';
 
-const client = new CloudBillingClient();
+ff.cloudEvent<PubSubMessage>('slashinator', async (event) => {
+  const startTime = Date.now();
+  const messageId = event.data?.message?.messageId || 'unknown';
 
-interface IPubsubMessage {
-  subscription: string;
-  message: {
-    messageId: string;
-    publishTime: string;
-    data: string;
-    attributes?: { [key: string]: string };
-  };
-}
+  console.log(`[${messageId}] Processing billing alert`, {
+    eventId: event.id,
+    deliveryAttempt: event.data?.deliveryAttempt || 1,
+  });
 
-interface IBudgetAlert {
-  budgetDisplayName: string
-  costAmount: number
-  costIntervalStart: string
-  budgetAmount: number
-  budgetAmountType: string
-  alertThresholdExceeded: number
-  currencyCode: string
-}
-
-const checkBillingStatus = async (projectName: string): Promise<boolean | null | undefined> => {
   try {
-    const [billingInfo] = await client.getProjectBillingInfo({
-      name: projectName,
+    // Parse and validate event
+    const budgetAlert = parseCloudEvent(event.data);
+    const projectId = extractProjectId(budgetAlert.budgetDisplayName);
+    const projectName = `projects/${projectId}`;
+
+    console.log(`[${messageId}] Budget details:`, {
+      projectId,
+      costAmount: budgetAlert.costAmount,
+      budgetAmount: budgetAlert.budgetAmount,
+      currencyCode: budgetAlert.currencyCode,
     });
-    return billingInfo?.billingEnabled;
-  } catch (err) {
-    console.error(`Error getting billing info for project ${projectName} : ${err}`);
-    throw err;
-  }
-};
 
-const disableBilling = async (projectName: string): Promise<void> => {
-  try {
-    await client.updateProjectBillingInfo({
-      name: projectName,
-      projectBillingInfo: {
-        billingAccountName: null, // Disable billing
-      },
-    });
-    console.log(`Billing disabled for project ${projectName}`);
-  } catch (err) {
-    console.error(`Error disabling billing for project ${projectName} : ${err}`);
-    throw err;
-  }
-};
-
-ff.cloudEvent<IPubsubMessage>('slashinator', async (event) => {
-  const data = JSON.parse(Buffer.from(event.data?.message.data as string, 'base64').toString()) as IBudgetAlert;
-  if (data === null) {
-    console.error('message is null');
-    return;
-  }
-
-  const projectId = data.budgetDisplayName.replace('-alert', '');
-  const projectName = `projects/${projectId}`;
-
-  try {
-    if (data.costAmount <= data.budgetAmount) {
+    // Check if budget exceeded
+    if (budgetAlert.costAmount <= budgetAlert.budgetAmount) {
+      console.log(`[${messageId}] Budget not exceeded, no action needed`);
       return;
     }
 
-    const billingEnabled = await checkBillingStatus(projectName);
+    console.warn(
+      `[${messageId}] Budget exceeded! Cost: ${budgetAlert.costAmount} > Budget: ${budgetAlert.budgetAmount}`
+    );
 
+    // Check and disable billing
+    const billingEnabled = await checkBillingStatus(projectName);
     if (!billingEnabled) {
-      console.log('Billing already disabled for project:', projectName);
+      console.log(`[${messageId}] Billing already disabled`);
       return;
     }
 
     await disableBilling(projectName);
-  } catch (err) {
-    console.error(`Error processing message: ${err}`);
+    console.log(
+      `[${messageId}] Successfully disabled billing in ${Date.now() - startTime}ms`
+    );
+  } catch (err: any) {
+    console.error(`[${messageId}] Error processing alert:`, {
+      error: err.message,
+      stack: err.stack,
+    });
+    throw err;
   }
 });
