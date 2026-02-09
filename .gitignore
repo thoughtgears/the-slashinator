@@ -2,3 +2,12 @@
 node_modules
 dist
 data
+
+# Claude Code
+.claude/
+
+# Log files
+*.log
+
+# Test coverage
+coverage/
