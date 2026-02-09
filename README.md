@@ -12,19 +12,37 @@ The Slashinator is a Cloud Functions Gen2 application (Node.js 22) that listens 
 - ✅ Structured logging with message ID tracking
 - ✅ Comprehensive test suite with Vitest
 
-## Usage
+## Prerequisites
 
-Run these commands to create a pub/sub topics for your events, create a service account for the Slashinator to use
-and grant it the required permissions to remove projects from the billing account. Then enable the billing budget api
-and create a budget with the pub/sub notification channel.
+### Required GCP APIs
 
-Enable the required APIs and create the pub/sub topic and budget.
+Gen2 Cloud Functions require several APIs to be enabled:
 
 ```shell
+# Core function APIs
 gcloud services enable cloudfunctions.googleapis.com --project $PROJECT_ID
 gcloud services enable cloudbuild.googleapis.com --project $PROJECT_ID
+
+# Gen2-specific APIs
+gcloud services enable run.googleapis.com --project $PROJECT_ID
+gcloud services enable eventarc.googleapis.com --project $PROJECT_ID
+gcloud services enable artifactregistry.googleapis.com --project $PROJECT_ID
+
+# Billing and budget APIs
 gcloud services enable billingbudgets.googleapis.com --project $PROJECT_ID
 ```
+
+**Why these APIs?**
+- `cloudfunctions.googleapis.com` - Cloud Functions service
+- `cloudbuild.googleapis.com` - Builds function container images
+- `run.googleapis.com` - Gen2 functions run on Cloud Run
+- `eventarc.googleapis.com` - Gen2 event routing (replaces direct Pub/Sub triggers)
+- `artifactregistry.googleapis.com` - Stores function container images
+- `billingbudgets.googleapis.com` - Budget alerts
+
+### Service Account Setup
+
+Create a dedicated service account with minimal permissions:
 
 Create the pub/sub topic and budget alert.
 
@@ -39,18 +57,34 @@ gcloud billing budgets create --billing-account=$BILLING_ACCOUNT \
                               --filter-projects=projects/<my-project>
 ```
 
-Create the service account and grant it the required permissions.
-
 ```shell
-gcloud iam service-accounts create cf-slashinator --project $PROJECT_ID
-gcloud beta billing accounts add-iam-policy-binding $BILLING_ACCOUNT \
-                              --member=serviceAccount:cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
-                              --role=roles/billing.admin
+# Create service account
+gcloud iam service-accounts create cf-slashinator \
+  --display-name="Cloud Function Slashinator" \
+  --project $PROJECT_ID
 
+# Grant Pub/Sub subscriber (to receive budget alerts)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member=serviceAccount:cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
+  --role=roles/pubsub.subscriber
+
+# Grant billing admin at billing account level (to disable billing)
+gcloud beta billing accounts add-iam-policy-binding $BILLING_ACCOUNT \
+  --member=serviceAccount:cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
+  --role=roles/billing.admin
+
+# If managing multiple projects under an organization:
 gcloud organizations add-iam-policy-binding $ORGANIZATION_ID \
-                              --member=serviceAccount:cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
-                              --role=roles/owner
+  --member=serviceAccount:cf-slashinator@$PROJECT_ID.iam.gserviceaccount.com \
+  --role=roles/billing.projectManager
 ```
+
+**Security Note:** The service account needs:
+- `roles/pubsub.subscriber` - Receive budget alert messages
+- `roles/billing.admin` - Disable billing on projects
+- `roles/billing.projectManager` - Manage billing for organization projects (optional)
+
+### Budget Alert Configuration
 
 Then deploy the Slashinator to Cloud Functions (Gen2).
 
