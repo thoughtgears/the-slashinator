@@ -15,7 +15,7 @@
     "prestart": "npm run build",
     "gcp-build": "npm run build",
     "predeploy": "npm run lint && npm run test:run && npm run build",
-    "deploy": "gcloud functions deploy the-slashinator --gen2 --runtime=nodejs22 --entry-point=slashinator --region=europe-west1 --source=. --trigger-topic=budget-alerts --timeout=60s --memory=256MB --max-instances=10 --retry --project=${PROJECT_ID:?PROJECT_ID environment variable not set}",
+    "deploy": "gcloud functions deploy the-slashinator --gen2 --runtime=nodejs22 --entry-point=slashinator --region=europe-west1 --source=. --trigger-topic=budget-alerts --service-account=${SERVICE_ACCOUNT:?SERVICE_ACCOUNT environment variable not set} --timeout=60s --memory=256MB --max-instances=10 --retry --project=${PROJECT_ID:?PROJECT_ID environment variable not set}",
     "prepare": "husky"
   },
   "author": "Jens Skott <jens.skott@thoughtgears.co.uk>",

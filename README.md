@@ -84,22 +84,48 @@ gcloud organizations add-iam-policy-binding $ORGANIZATION_ID \
 - `roles/billing.admin` - Disable billing on projects
 - `roles/billing.projectManager` - Manage billing for organization projects (optional)
 
-### Budget Alert Configuration
+### Pub/Sub Topic for Budget Alerts
 
-Then deploy the Slashinator to Cloud Functions (Gen2).
-
-### Deployment
-
-**Required**: Set the `PROJECT_ID` environment variable to your GCP project ID.
+Create the Pub/Sub topic that will receive budget alert notifications:
 
 ```shell
-# Option 1: Export PROJECT_ID (persists in current shell session)
+gcloud pubsub topics create budget-alerts --project $PROJECT_ID
+```
+
+### Budget Alert Configuration
+
+Create a budget alert that publishes to the Pub/Sub topic:
+
+```shell
+gcloud billing budgets create \
+  --billing-account=$BILLING_ACCOUNT \
+  --display-name="my-project-alert" \
+  --budget-amount=10.0GBP \
+  --notifications-rule-pubsub-topic=projects/$PROJECT_ID/topics/budget-alerts \
+  --calendar-period=month \
+  --threshold-rule=percent=0.90,basis=current-spend \
+  --filter-projects=projects/$PROJECT_ID
+```
+
+## Deployment
+
+### Required Environment Variables
+
+Set these environment variables before deploying:
+
+```shell
+# Option 1: Export variables (persists in current shell session)
 export PROJECT_ID=my-gcp-project
+export SERVICE_ACCOUNT=cf-slashinator@my-gcp-project.iam.gserviceaccount.com
 npm run deploy
 
-# Option 2: Pass PROJECT_ID inline (one-time use)
-PROJECT_ID=my-gcp-project npm run deploy
+# Option 2: Pass variables inline (one-time use)
+PROJECT_ID=my-gcp-project SERVICE_ACCOUNT=cf-slashinator@my-gcp-project.iam.gserviceaccount.com npm run deploy
 ```
+
+**Environment Variables:**
+- `PROJECT_ID` - Your GCP project ID
+- `SERVICE_ACCOUNT` - Full service account email (format: `name@project.iam.gserviceaccount.com`)
 
 **What happens during deployment:**
 1. ✅ Run ESLint to check code quality
