@@ -6,31 +6,43 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "start": "functions-framework --target=slashinator --signature-type=cloudevent",
     "prestart": "npm run build",
-    "gcp-build": "npm run build"
+    "gcp-build": "npm run build",
+    "predeploy": "npm run lint && npm run test:run && npm run build",
+    "deploy": "gcloud functions deploy the-slashinator --gen2 --runtime=nodejs22 --entry-point=slashinator --region=europe-west1 --source=. --trigger-topic=budget-alerts --timeout=60s --memory=256MB --max-instances=10 --retry --project=${PROJECT_ID:?PROJECT_ID environment variable not set}",
+    "prepare": "husky"
   },
   "author": "Jens Skott <jens.skott@thoughtgears.co.uk>",
   "license": "MIT",
   "dependencies": {
     "@google-cloud/billing": "^5.1.0",
     "@google-cloud/functions-framework": "^4.0.0",
-    "zod": "^4.3.6",
-    "p-retry": "^7.1.1"
+    "p-retry": "^7.1.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
+    "@vitest/ui": "^3.0.0",
+    "c8": "^10.1.2",
     "eslint": "^9.0.0",
     "eslint-config-google": "^0.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "typescript": "^5.9.3",
-    "vitest": "^3.0.0",
-    "@vitest/ui": "^3.0.0",
-    "c8": "^10.1.2"
+    "vitest": "^3.0.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "vitest related --run"
+    ]
   }
 }

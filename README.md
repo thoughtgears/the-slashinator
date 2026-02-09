@@ -55,6 +55,21 @@ gcloud organizations add-iam-policy-binding $ORGANIZATION_ID \
 Then deploy the Slashinator to Cloud Functions (Gen2).
 
 ```shell
+# Deploy using npm script (runs lint, tests, build, then deploys)
+npm run deploy
+```
+
+This will:
+1. ✅ Run ESLint to check code quality
+2. ✅ Run all tests (must pass)
+3. ✅ Build TypeScript
+4. 🚀 Deploy to GCP with Gen2 configuration:
+   - Automatic retries enabled (`--retry`)
+   - 60 second timeout and 256MB memory
+   - Maximum 10 concurrent instances for cost protection
+
+**Manual deployment** (if you need custom flags):
+```shell
 gcloud functions deploy the-slashinator \
   --gen2 \
   --runtime=nodejs22 \
@@ -70,11 +85,6 @@ gcloud functions deploy the-slashinator \
   --project=$PROJECT_ID \
   --quiet
 ```
-
-**Note:** This deploys a Gen2 function with:
-- Automatic retries enabled (`--retry`)
-- 60 second timeout and 256MB memory
-- Maximum 10 concurrent instances for cost protection
 
 ## Development
 

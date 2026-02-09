@@ -13,13 +13,14 @@ export const checkBillingStatus = async (
           name: projectName,
         });
         return billingInfo?.billingEnabled;
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Don't retry permanent errors
-        if ([400, 403, 404].includes(err.code)) {
-          console.error(`Permanent error checking billing: ${err.message}`);
+        const error = err as {code?: number; message?: string};
+        if (error.code && [400, 403, 404].includes(error.code)) {
+          console.error(`Permanent error checking billing: ${error.message}`);
           throw new AbortError(err);
         }
-        console.warn(`Transient error, will retry: ${err.message}`);
+        console.warn(`Transient error, will retry: ${error.message}`);
         throw err;
       }
     },
@@ -48,12 +49,13 @@ export const disableBilling = async (projectName: string): Promise<void> => {
           },
         });
         console.log(`Billing disabled for ${projectName}`);
-      } catch (err: any) {
-        if ([400, 403, 404].includes(err.code)) {
-          console.error(`Permanent error disabling billing: ${err.message}`);
+      } catch (err: unknown) {
+        const error = err as {code?: number; message?: string};
+        if (error.code && [400, 403, 404].includes(error.code)) {
+          console.error(`Permanent error disabling billing: ${error.message}`);
           throw new AbortError(err);
         }
-        console.warn(`Transient error, will retry: ${err.message}`);
+        console.warn(`Transient error, will retry: ${error.message}`);
         throw err;
       }
     },

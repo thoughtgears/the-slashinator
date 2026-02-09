@@ -53,11 +53,12 @@ ff.cloudEvent<PubSubMessage>('slashinator', async (event: CloudEvent<PubSubMessa
     console.log(
       `[${messageId}] Successfully disabled billing in ${Date.now() - startTime}ms`,
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err : new Error(String(err));
     console.error(`[${messageId}] Error processing alert:`, {
-      error: err.message,
-      stack: err.stack,
+      error: error.message,
+      stack: error.stack,
     });
-    throw err;
+    throw error;
   }
 });
