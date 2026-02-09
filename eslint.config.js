@@ -4,7 +4,7 @@ import googleConfig from 'eslint-config-google';
 
 export default [
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -26,6 +26,31 @@ export default [
       'require-jsdoc': 'off',
       'valid-jsdoc': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+    },
+  },
+  {
+    files: ['tests/**/*.ts', '*.config.ts'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      ...googleConfig.rules,
+      ...tseslint.configs.recommended.rules,
+      'quotes': ['error', 'single'],
+      'indent': 'off',
+      'max-len': ['error', {code: 120}],
+      'no-unused-vars': ['warn'],
+      'require-jsdoc': 'off',
+      'valid-jsdoc': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
     },
   },

@@ -1,10 +1,10 @@
-import { CloudBillingClient } from '@google-cloud/billing';
-import pRetry, { AbortError } from 'p-retry';
+import {CloudBillingClient} from '@google-cloud/billing';
+import pRetry, {AbortError} from 'p-retry';
 
 const client = new CloudBillingClient();
 
 export const checkBillingStatus = async (
-  projectName: string
+  projectName: string,
 ): Promise<boolean | null | undefined> => {
   return pRetry(
     async () => {
@@ -30,10 +30,10 @@ export const checkBillingStatus = async (
       maxTimeout: 10000,
       onFailedAttempt: (error) => {
         console.log(
-          `Retry ${error.attemptNumber} for checkBillingStatus. ${error.retriesLeft} left.`
+          `Retry ${error.attemptNumber} for checkBillingStatus. ${error.retriesLeft} left.`,
         );
       },
-    }
+    },
   );
 };
 
@@ -64,9 +64,9 @@ export const disableBilling = async (projectName: string): Promise<void> => {
       maxTimeout: 10000,
       onFailedAttempt: (error) => {
         console.log(
-          `Retry ${error.attemptNumber} for disableBilling. ${error.retriesLeft} left.`
+          `Retry ${error.attemptNumber} for disableBilling. ${error.retriesLeft} left.`,
         );
       },
-    }
+    },
   );
 };

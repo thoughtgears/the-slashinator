@@ -1,9 +1,5 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 
-// Create mock functions that will be shared
-const mockGetProjectBillingInfo = vi.fn();
-const mockUpdateProjectBillingInfo = vi.fn();
-
 // Mock the billing client
 vi.mock('@google-cloud/billing', () => {
   const mockGetInfo = vi.fn();

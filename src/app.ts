@@ -39,7 +39,7 @@ ff.cloudEvent<PubSubMessage>('slashinator', async (event: CloudEvent<PubSubMessa
     }
 
     console.warn(
-      `[${messageId}] Budget exceeded! Cost: ${budgetAlert.costAmount} > Budget: ${budgetAlert.budgetAmount}`
+      `[${messageId}] Budget exceeded! Cost: ${budgetAlert.costAmount} > Budget: ${budgetAlert.budgetAmount}`,
     );
 
     // Check and disable billing
@@ -51,7 +51,7 @@ ff.cloudEvent<PubSubMessage>('slashinator', async (event: CloudEvent<PubSubMessa
 
     await disableBilling(projectName);
     console.log(
-      `[${messageId}] Successfully disabled billing in ${Date.now() - startTime}ms`
+      `[${messageId}] Successfully disabled billing in ${Date.now() - startTime}ms`,
     );
   } catch (err: any) {
     console.error(`[${messageId}] Error processing alert:`, {

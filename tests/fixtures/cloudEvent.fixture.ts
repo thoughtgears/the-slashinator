@@ -5,7 +5,7 @@ import type {
 } from '../../src/schemas/budgetAlert.schema';
 
 export const createBillingAlertEvent = (
-  override?: Partial<BudgetAlert>
+  override?: Partial<BudgetAlert>,
 ): CloudEvent<PubSubMessage> => {
   const defaultAlert: BudgetAlert = {
     budgetDisplayName: 'test-project-alert',
