@@ -1,6 +1,5 @@
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
-import googleConfig from 'eslint-config-google';
 
 export default [
   {
@@ -17,7 +16,6 @@ export default [
       '@typescript-eslint': tseslint,
     },
     rules: {
-      ...googleConfig.rules,
       ...tseslint.configs.recommended.rules,
       'quotes': ['error', 'single'],
       'indent': 'off',
@@ -30,7 +28,7 @@ export default [
     },
   },
   {
-    files: ['tests/**/*.ts', '*.config.ts'],
+    files: ['tests/**/*.ts', '*.config.mts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -42,7 +40,6 @@ export default [
       '@typescript-eslint': tseslint,
     },
     rules: {
-      ...googleConfig.rules,
       ...tseslint.configs.recommended.rules,
       'quotes': ['error', 'single'],
       'indent': 'off',
