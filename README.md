@@ -2,11 +2,11 @@
 
 ## What is it?
 
-The Slashinator is a Cloud Functions Gen2 application (Node.js 22) that listens to budget alerts in GCP and removes the project from the billing account to ensure that the project is not charged for any further usage. This is useful for personal projects that should not exceed a certain budget.
+The Slashinator is a Cloud Functions Gen2 application (Node.js 24) that listens to budget alerts in GCP and removes the project from the billing account to ensure that the project is not charged for any further usage. This is useful for personal projects that should not exceed a certain budget.
 
 **Features:**
 - ✅ Gen2 Cloud Functions with CloudEvent format
-- ✅ Node.js 22 LTS runtime
+- ✅ Node.js 24 LTS runtime
 - ✅ Automatic retry logic with exponential backoff (3 attempts)
 - ✅ Input validation with Zod schemas
 - ✅ Structured logging with message ID tracking
@@ -140,7 +140,7 @@ PROJECT_ID=my-gcp-project SERVICE_ACCOUNT=cf-slashinator@my-gcp-project.iam.gser
 ```shell
 gcloud functions deploy the-slashinator \
   --gen2 \
-  --runtime=nodejs22 \
+  --runtime=nodejs24 \
   --entry-point=slashinator \
   --region=europe-west1 \
   --source=. \
