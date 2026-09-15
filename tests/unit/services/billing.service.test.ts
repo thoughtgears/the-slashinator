@@ -5,10 +5,12 @@ vi.mock('@google-cloud/billing', () => {
   const mockGetInfo = vi.fn();
   const mockUpdateInfo = vi.fn();
   return {
-    CloudBillingClient: vi.fn().mockImplementation(() => ({
-      getProjectBillingInfo: mockGetInfo,
-      updateProjectBillingInfo: mockUpdateInfo,
-    })),
+    CloudBillingClient: vi.fn().mockImplementation(function() {
+      return {
+        getProjectBillingInfo: mockGetInfo,
+        updateProjectBillingInfo: mockUpdateInfo,
+      };
+    }),
     __mockGetProjectBillingInfo: mockGetInfo,
     __mockUpdateProjectBillingInfo: mockUpdateInfo,
   };

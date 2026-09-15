@@ -30,14 +30,14 @@
     "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
-    "@vitest/ui": "^3.0.0",
+    "@vitest/ui": "^5.0.1",
     "c8": "^10.1.2",
     "eslint": "^9.0.0",
     "eslint-config-google": "^0.14.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
     "typescript": "^5.9.3",
-    "vitest": "^3.0.0"
+    "vitest": "^5.0.1"
   },
   "lint-staged": {
     "*.ts": [

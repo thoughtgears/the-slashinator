@@ -6,10 +6,12 @@ const mockGetProjectBillingInfo = vi.fn();
 const mockUpdateProjectBillingInfo = vi.fn();
 
 vi.mock('@google-cloud/billing', () => ({
-  CloudBillingClient: vi.fn().mockImplementation(() => ({
-    getProjectBillingInfo: mockGetProjectBillingInfo,
-    updateProjectBillingInfo: mockUpdateProjectBillingInfo,
-  })),
+  CloudBillingClient: vi.fn().mockImplementation(function() {
+    return {
+      getProjectBillingInfo: mockGetProjectBillingInfo,
+      updateProjectBillingInfo: mockUpdateProjectBillingInfo,
+    };
+  }),
 }));
 
 // Mock p-retry to avoid delays
