@@ -110,6 +110,19 @@ describe('BillingService', () => {
       },
     );
 
+    it('falls back to a default message when a permanent error has none', async () => {
+      vi.useFakeTimers();
+      mockGetProjectBillingInfo.mockImplementation(() =>
+        Promise.reject(new GrpcError(5 /* NOT_FOUND */, '')),
+      );
+
+      const assertion = expect(
+        checkBillingStatus('projects/test'),
+      ).rejects.toThrow('Unknown error');
+      await vi.runAllTimersAsync();
+      await assertion;
+    });
+
     it('retries a transient gRPC error and succeeds once it clears', async () => {
       vi.useFakeTimers();
       mockGetProjectBillingInfo
@@ -182,6 +195,19 @@ describe('BillingService', () => {
         expect(mockUpdateProjectBillingInfo).toHaveBeenCalledTimes(1);
       },
     );
+
+    it('falls back to a default message when a permanent error has none', async () => {
+      vi.useFakeTimers();
+      mockUpdateProjectBillingInfo.mockImplementation(() =>
+        Promise.reject(new GrpcError(5 /* NOT_FOUND */, '')),
+      );
+
+      const assertion = expect(
+        disableBilling('projects/test'),
+      ).rejects.toThrow('Unknown error');
+      await vi.runAllTimersAsync();
+      await assertion;
+    });
 
     it('retries a transient gRPC error and succeeds once it clears', async () => {
       vi.useFakeTimers();
