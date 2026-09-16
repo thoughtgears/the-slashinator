@@ -37,10 +37,7 @@ vi.mock('p-retry', () => ({
 
 await import('../../src/app');
 const {getFunction} = await import('@google-cloud/functions-framework/testing');
-// `event` below names a function-type parameter, not a real declaration -
-// the base no-unused-vars rule doesn't understand TS type positions.
 type SlashinatorHandler = (
-  // eslint-disable-next-line no-unused-vars
   event: CloudEvent<PubSubMessage>,
 ) => Promise<void>;
 const handler = getFunction('slashinator') as SlashinatorHandler;
