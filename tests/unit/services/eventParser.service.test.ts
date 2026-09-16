@@ -85,5 +85,14 @@ describe('EventParser', () => {
       expect(extractProjectId('project-alert')).toBe('project');
       expect(extractProjectId('a-alert')).toBe('a');
     });
+
+    it('should only strip a trailing -alert, not the first occurrence anywhere', () => {
+      // Regression test: a naive `.replace('-alert', '')` strips the FIRST
+      // match anywhere in the string, corrupting project IDs that happen to
+      // contain "-alert" mid-string. Budgets are named
+      // `${project_name}-alert` in Terraform, so this is a real shape.
+      expect(extractProjectId('my-alerting-app-alert')).toBe('my-alerting-app');
+      expect(extractProjectId('pre-alert-prod-alert')).toBe('pre-alert-prod');
+    });
   });
 });

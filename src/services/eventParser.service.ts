@@ -17,5 +17,8 @@ export const parseCloudEvent = (eventData: unknown): BudgetAlert => {
 };
 
 export const extractProjectId = (budgetDisplayName: string): string => {
-  return budgetDisplayName.replace('-alert', '');
+  // Budgets are named `${project_name}-alert` in Terraform: strip only a
+  // trailing "-alert" suffix. A first-occurrence replace corrupts project
+  // IDs that contain "-alert" mid-string, e.g. "my-alerting-app-alert".
+  return budgetDisplayName.replace(/-alert$/, '');
 };
