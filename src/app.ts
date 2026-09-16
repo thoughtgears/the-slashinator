@@ -44,6 +44,22 @@ ff.cloudEvent<PubSubMessage>('slashinator', async (event: CloudEvent<PubSubMessa
 
     // Check and disable billing
     const billingEnabled = await checkBillingStatus(projectName);
+
+    // `checkBillingStatus` resolves `boolean | null | undefined`: the billing
+    // API can omit `billingEnabled` entirely, which is not the same as it
+    // being false. Do not act on a state we could not read - this function
+    // holds billing.admin, so disabling billing on a project whose status is
+    // unknown is a worse outcome than declining to act, and the budget alert
+    // that triggered this invocation has already notified a human. Log at
+    // error level so the ambiguous case is alertable rather than silent.
+    if (billingEnabled === null || billingEnabled === undefined) {
+      console.error(
+        `[${messageId}] Billing state unknown for ${projectName}: the API did ` +
+          'not report billingEnabled. Taking no action - investigate manually.',
+      );
+      return;
+    }
+
     if (!billingEnabled) {
       console.log(`[${messageId}] Billing already disabled`);
       return;

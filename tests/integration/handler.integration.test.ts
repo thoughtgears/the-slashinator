@@ -121,13 +121,13 @@ describe('slashinator handler (src/app.ts)', () => {
     expect(mockUpdateProjectBillingInfo).not.toHaveBeenCalled();
   });
 
-  it('does nothing when the billing API omits billingEnabled (fail-open on undefined)', async () => {
-    // checkBillingStatus can resolve `undefined` if the API response omits
-    // the field entirely. app.ts's `if (!billingEnabled) return;` guard
-    // treats that the same as "already disabled" and takes no action -
-    // this is a fail-open on missing data for a spend-cap function. See
-    // the accompanying report for a call on whether that's the right
-    // default.
+  it('declines to act, loudly, when the API omits billingEnabled', async () => {
+    // checkBillingStatus resolves `undefined` when the API response omits the
+    // field. That is an unknown state, not a known-disabled one: this function
+    // holds billing.admin, so it declines to act rather than disable billing on
+    // a project it could not read - but it logs at error level so the case is
+    // alertable instead of silent.
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockGetProjectBillingInfo.mockResolvedValue([{}]);
     const event = createBillingAlertEvent({
       costAmount: 2000,
@@ -138,6 +138,29 @@ describe('slashinator handler (src/app.ts)', () => {
 
     expect(mockGetProjectBillingInfo).toHaveBeenCalled();
     expect(mockUpdateProjectBillingInfo).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Billing state unknown'),
+    );
+    errorSpy.mockRestore();
+  });
+
+  it('declines to act, loudly, when billingEnabled is null', async () => {
+    // Same unknown-state path as above, reached via an explicit null rather
+    // than an absent field - both arms of the guard are real API shapes.
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockGetProjectBillingInfo.mockResolvedValue([{billingEnabled: null}]);
+    const event = createBillingAlertEvent({
+      costAmount: 2000,
+      budgetAmount: 1500,
+    });
+
+    await handler(event);
+
+    expect(mockUpdateProjectBillingInfo).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Billing state unknown'),
+    );
+    errorSpy.mockRestore();
   });
 
   it('propagates a non-Error rejection from disableBilling (outer catch, non-Error branch)', async () => {
