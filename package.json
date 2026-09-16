@@ -14,7 +14,7 @@
     "start": "functions-framework --target=slashinator --signature-type=cloudevent",
     "prestart": "npm run build",
     "gcp-build": "npm run build",
-    "predeploy": "npm run lint && npm run test:run && npm run build",
+    "predeploy": "npm run lint && npm run test:coverage && npm run build",
     "deploy": "gcloud functions deploy the-slashinator --gen2 --runtime=nodejs24 --entry-point=slashinator --region=europe-west1 --source=. --trigger-topic=budget-alerts --service-account=${SERVICE_ACCOUNT:?SERVICE_ACCOUNT environment variable not set} --timeout=60s --memory=256MB --max-instances=10 --retry --project=${PROJECT_ID:?PROJECT_ID environment variable not set}",
     "prepare": "husky"
   },
